@@ -5,6 +5,7 @@ This is the Power Query Custom Connector for DuckDB. Use this to connect to a Du
 1. [Installing](#installing)
 2. [How to use with Power BI](#how-to-use-with-power-bi)
 3. [Turning on UTF-8 support in the Language & Region settings](#turning-on-utf-8-support-in-the-language--region-settings)
+4. [[Experimental] Power BI Service](#experimental-power-bi-service)
 
 ## Installing
 
@@ -58,3 +59,52 @@ Now, you should be able to load your UTF-8 encoded database with Power BI direct
 
 <img width="653" alt="image" src="https://github.com/MotherDuck-Open-Source/duckdb-power-query-connector/assets/4041805/bc83d199-317b-4142-a180-579a9b9d8a05">
 
+## [Experimental] Power BI Service
+
+To use the [Power BI Service](https://app.powerbi.com/) with MotherDuck, you can use the [On-Premises Data Gateway](https://learn.microsoft.com/en-us/power-bi/connect-data/service-gateway-onprem) application. Note that data will only be available when the gateway is on and connected to MotherDuck. This will enable features like automated refresh, and let you share your PowerBI dashboards online.
+
+1. Follow these instructions to install the on-premises data gateway: [Download and install a standard gateway](https://learn.microsoft.com/en-us/data-integration/gateway/service-gateway-install#download-and-install-a-standard-gateway).
+2. Open Services, and find the On-premises data gateway service. Double click to open the Properties dialog.
+
+<img width="500" src="https://github.com/user-attachments/assets/64bfbefe-933d-413d-80d3-dd4c4e95775a">
+
+Go to the "Log On" tab and click "Local System Account" and check "Allow service to interact with Desktop".
+
+<img width="500" src="https://github.com/user-attachments/assets/73e7bd49-c3ff-4f7d-9ebc-36052d55b49f">
+
+3. Click on "Restart" to restart the service. Open the "Connectors" tab and wait until "DuckDB" shows up in Custom Connectors. If it does not, please follow the Custom Connector installation instructions above.
+
+<img width="500" src="https://github.com/user-attachments/assets/72bd701b-0ace-4dbb-a63b-ddbb848e50af">
+
+4. Go to [Power BI Service](https://app.powerbi.com/) and click on the "Settings" icon in the top right. Navigate to the "Manage connections and gateways" page.
+
+<img width="300" src="https://github.com/user-attachments/assets/e366b74c-30b3-43e3-bdcb-eb8fdc459bf8">
+
+5. Click on the dots menu next to the gateway you configured in step 1. and click on "Settings"
+
+<img width="500" src="https://github.com/user-attachments/assets/b591c89e-e4bc-480f-9f5f-3f20958ea3e9">
+
+6. Click the "Allow user's cloud data sources to refresh through this gateway cluster" and "Allow user's custom data connectors to refresh through this gateway cluster."
+
+<img width="300" src="https://github.com/user-attachments/assets/3c8ef4e3-afdd-41de-ad2d-bdd169ae04c2">
+
+7. On the "Manage connections and gateways" page, click on the "Connections" tab and click "+ New"
+
+<img width="500" src="https://github.com/user-attachments/assets/66061365-9969-4600-a5dd-96435bad37f8">
+
+8. Enter your connection details. You can enter any local file name here, or use MotherDuck. If you do, make sure to enter a valid [MotherDuck token](https://app.motherduck.com/token-request?appName=powerbi).
+
+<img width="300" src="https://github.com/user-attachments/assets/68f8afc0-d8f3-4e88-b3d6-73ef0acbfc4d">
+
+Click "Save".
+
+<img width="300" src="https://github.com/user-attachments/assets/065f8fba-7d36-4ebe-9e80-8fafee38aa81">
+
+9. Now you can create a Power BI report and publish it to Power BI Service.
+On your report, click "Publish".
+
+<img width="400" src="https://github.com/user-attachments/assets/52757a6a-1564-4a1a-9187-4ecc6a8550a3">
+
+10. Done! Now you can click on the URL in the Publishing to Power BI dialog to access the online report.
+
+<img width="400" src="https://github.com/user-attachments/assets/fd43f6d5-9747-4fe3-87e7-59798b89d615">
