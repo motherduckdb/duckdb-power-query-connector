@@ -150,10 +150,11 @@ DuckDB = [
     // to the specified data source function.
     TestConnection = (dataSourcePath) =>
         let
-            json = Json.Document(dataSourcePath), server = json[server]
+            params = Json.Document(dataSourcePath),
+            server = params[server]
             // name of function parameter
         in
-            {"SqlODBC.Contents", server},
+            {"DuckDB.Contents", server},
     // Set supported types of authentication
     Authentication = [
         Windows = [],
