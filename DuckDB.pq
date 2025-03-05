@@ -151,10 +151,12 @@ DuckDB = [
     TestConnection = (dataSourcePath) =>
         let
             params = Json.Document(dataSourcePath),
-            server = params[server]
+            server = params[server],
+            startDate = params[startDate],
+            endDate = params[endDate]
             // name of function parameter
         in
-            {"DuckDB.Contents", server},
+            {"DuckDB.Data", startDate, endDate},
     // Set supported types of authentication
     Authentication = [
         Windows = [],
