@@ -103,7 +103,7 @@ Enable the "Skip test connection" check box.
 
 <img width="300" src="https://github.com/user-attachments/assets/68f8afc0-d8f3-4e88-b3d6-73ef0acbfc4d">
 
-Click "Save".
+Click "Create".
 
 <img width="300" src="https://github.com/user-attachments/assets/065f8fba-7d36-4ebe-9e80-8fafee38aa81">
 
