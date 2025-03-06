@@ -99,7 +99,7 @@ Go to the "Log On" tab and click "Local System Account" and check "Allow service
       cp -R '~\.duckdb\extensions\v1.2.0\' "C:\WINDOWS\system32\config\systemprofile\.duckdb\extensions\"
       ```
 
-Make sure the "Skip test connection" check box is enabled.
+Enable the "Skip test connection" check box.
 
 <img width="300" src="https://github.com/user-attachments/assets/68f8afc0-d8f3-4e88-b3d6-73ef0acbfc4d">
 
