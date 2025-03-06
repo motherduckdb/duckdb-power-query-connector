@@ -61,7 +61,7 @@ Now, you should be able to load your UTF-8 encoded database with Power BI direct
 
 ## [Experimental] Power BI Service
 
-To use the [Power BI Service](https://app.powerbi.com/) with MotherDuck, you can use the [On-Premises Data Gateway](https://learn.microsoft.com/en-us/power-bi/connect-data/service-gateway-onprem) application. Note that data will only be available when the gateway is on and connected to MotherDuck. This will enable features like automated refresh, and let you share your PowerBI dashboards online.
+To use the [Power BI Service](https://app.powerbi.com/) with DuckDB, you can use the [On-Premises Data Gateway](https://learn.microsoft.com/en-us/power-bi/connect-data/service-gateway-onprem) application. Note that data will only be available when the gateway is on and connected to the internet. This will enable features like automated refresh, and let you share your PowerBI dashboards online.
 
 1. Follow these instructions to install the on-premises data gateway: [Download and install a standard gateway](https://learn.microsoft.com/en-us/data-integration/gateway/service-gateway-install#download-and-install-a-standard-gateway).
 2. Open Services, and find the On-premises data gateway service. Double click to open the Properties dialog.
