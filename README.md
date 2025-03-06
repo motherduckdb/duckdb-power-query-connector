@@ -94,6 +94,13 @@ Go to the "Log On" tab and click "Local System Account" and check "Allow service
 
 8. Enter your connection details. You can enter any local file name here, or use MotherDuck. If you do, make sure to enter a valid [MotherDuck token](https://app.motherduck.com/token-request?appName=powerbi).
 
+      > If you are using MotherDuck, make sure that the MotherDuck extension is installed under `C:\WINDOWS\system32\config\systemprofile\.duckdb\extensions\`. To do so, you can download the [DuckDB CLI client for Windows](https://duckdb.org/docs/installation/?version=stable&environment=cli&platform=win&download_method=direct&architecture=x86_64), and run `INSTALL motherduck`. Then, you can copy over the extension files via PowerShell:
+      ```
+      cp -R '~\.duckdb\extensions\v1.2.0\' "C:\WINDOWS\system32\config\systemprofile\.duckdb\extensions\"
+      ```
+
+Make sure the "Skip test connection" check box is enabled.
+
 <img width="300" src="https://github.com/user-attachments/assets/68f8afc0-d8f3-4e88-b3d6-73ef0acbfc4d">
 
 Click "Save".
