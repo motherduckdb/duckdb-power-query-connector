@@ -185,9 +185,9 @@ DuckDB.Icons = [
 GetFullPath = (database as text, optional motherduck_token as text, optional saas_mode as logical) as text =>
     let
         path = if IsMotherDuckDatabase(database) and saas_mode = true
-            then database & "?motherduck_token=" & motherduck_token & "&saas_mode=true"
+            then database & "?motherduck_token=" & motherduck_token & "&saas_mode=true&attach_mode=single"
             else if IsMotherDuckDatabase(database)
-            then database & "?motherduck_token=" & motherduck_token
+            then database & "?motherduck_token=" & motherduck_token & "&attach_mode=single"
             else database
     in
         if IsMotherDuckDatabase(database) and (motherduck_token = null or motherduck_token = "")
