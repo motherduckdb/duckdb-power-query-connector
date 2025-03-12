@@ -38,7 +38,7 @@ Config_EnableDirectQuery = true;
 DefaultCustomUserAgent = "powerbi/v0.0(DuckDB)";
 
 [DataSource.Kind="DuckDB", Publish="DuckDB.Publish"]
-shared DuckDB.Contents = (database as text, optional motherduck_token as text, optional read_only as logical, optional saas_mode as logical, optional options as record) =>
+shared DuckDB.Contents = (database as text, optional motherduck_token as text, optional read_only as logical, optional saas_mode as logical, optional attach_mode as text, optional options as record) =>
     let
         Config_DriverName = Config_DriverName,
         // Read-only
@@ -62,7 +62,7 @@ shared DuckDB.Contents = (database as text, optional motherduck_token as text, o
         // The ODBC connection string
         ConnectionString = options & [
             Driver = Config_DriverName,
-            Database = GetFullPath(database, motherduck_token, saas_mode),
+            Database = GetFullPath(database, motherduck_token, saas_mode, attach_mode),
             access_mode = AccessMode,
             custom_user_agent = CustomUserAgent
         ],
@@ -182,12 +182,15 @@ DuckDB.Icons = [
 ];
 
 // Get the full DuckDB path to pass to the ODBC driver
-GetFullPath = (database as text, optional motherduck_token as text, optional saas_mode as logical) as text =>
+GetFullPath = (database as text, optional motherduck_token as text, optional saas_mode as logical, optional attach_mode as text) as text =>
     let
+        attach_mode = if (attach_mode = null or attach_mode = "")
+            then "single"
+            else attach_mode,
         path = if IsMotherDuckDatabase(database) and saas_mode = true
-            then database & "?motherduck_token=" & motherduck_token & "&saas_mode=true&attach_mode=single"
+            then database & "?motherduck_token=" & motherduck_token & "&saas_mode=true&attach_mode=" & attach_mode
             else if IsMotherDuckDatabase(database)
-            then database & "?motherduck_token=" & motherduck_token & "&attach_mode=single"
+            then database & "?motherduck_token=" & motherduck_token & "&attach_mode=" & attach_mode
             else database
     in
         if IsMotherDuckDatabase(database) and (motherduck_token = null or motherduck_token = "")
