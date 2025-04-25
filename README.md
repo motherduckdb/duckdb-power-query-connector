@@ -97,7 +97,7 @@ Go to the "Log On" tab and click "Local System Account" and check "Allow service
 
 8. Enter your connection details. You can enter any local file name here, or use MotherDuck. If you do, make sure to enter a valid [MotherDuck token](https://app.motherduck.com/token-request?appName=powerbi).
 
-      > If you are using DuckDB, you can just enter a space or nonsense value into the MotherDuck token field.
+      > From version 0.1.7, the `motherduck_token` is a required parameter, in order to enable usage with Power BI Service. If you are using DuckDB, you can enter any value (e.g. `ducks`) into the MotherDuck token field.
 
       > If you are using MotherDuck, make sure that the MotherDuck extension is installed under `C:\WINDOWS\system32\config\systemprofile\.duckdb\extensions\`. To do so, you can download the [DuckDB CLI client for Windows](https://duckdb.org/docs/installation/?version=stable&environment=cli&platform=win&download_method=direct&architecture=x86_64), and run `INSTALL motherduck`. Then, you can copy over the extension files via PowerShell:
       ```
