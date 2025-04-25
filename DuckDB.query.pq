@@ -13,6 +13,13 @@ let
     // (Optional for MD) AttachMode ("workspace" or "single")
     AttachMode="single",
     // Connect to data source
-    OdbcDatasource = DuckDB.Contents(Database, MotherDuckToken, ReadOnly, SaaSMode, AttachMode, options)
+    OdbcDatasource = DuckDB.Contents(
+        Database,
+        MotherDuckToken,
+        ReadOnly,
+        SaaSMode,
+        AttachMode,
+        options
+    )
 in
     OdbcDatasource{[Item="test"]}[Data]
