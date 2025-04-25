@@ -1,5 +1,5 @@
 // This file contains your Data Connector logic
-[Version = "0.1.6"]
+[Version = "0.1.7"]
 section DuckDB;
 
 // When set to true, additional trace information will be written out to the User log.
