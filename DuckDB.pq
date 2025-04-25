@@ -67,7 +67,7 @@ shared DuckDB.Contents = (
         else
             DefaultCustomUserAgent,
         Credential = Extension.CurrentCredential(),
-        token = if (motherduck_token <> null) then motherduck_token else Credential[Password],
+        token = try Credential[Password] otherwise motherduck_token,
         // The ODBC connection string
         ConnectionString = options & [
             Driver = Config_DriverName,
