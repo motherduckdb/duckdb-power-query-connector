@@ -171,7 +171,6 @@ DuckDB = [
             {"DuckDB.Contents", database, motherduck_token, read_only, saas_mode, attach_mode, options},
     // Set supported types of authentication
     Authentication = [
-        Windows = [],
         Anonymous = [],
         UsernamePassword = []
     ],
