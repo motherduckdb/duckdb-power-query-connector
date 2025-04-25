@@ -32,6 +32,9 @@ This is the Power Query Custom Connector for DuckDB. Use this to connect to a Du
 ![Find DuckDB connector](images/find-connector.png)
 1. Enter your database location. This can be a local file path (e.g. `~\my_database.db`) or a MotherDuck database location (e.g. `md:my_database`). (Optional) enter your [MotherDuck token](https://app.motherduck.com/token-request?appName=PowerBI). If you want to access the database in `read_only` mode, you can set it to `true`.
 ![Connect to your DuckDB database](images/connect-duckdb.png)
+
+> From version 0.1.7, the `motherduck_token` is a required parameter, in order to enable usage with Power BI Service. If you are using DuckDB, you can enter any value (e.g. `ducks`) into the MotherDuck token field.
+
 Click "OK".
 1. Click "Connect".
 ![Connect dialog](images/connect.png)
@@ -94,10 +97,14 @@ Go to the "Log On" tab and click "Local System Account" and check "Allow service
 
 8. Enter your connection details. You can enter any local file name here, or use MotherDuck. If you do, make sure to enter a valid [MotherDuck token](https://app.motherduck.com/token-request?appName=powerbi).
 
+      > From version 0.1.7, the `motherduck_token` is a required parameter, in order to enable usage with Power BI Service. If you are using DuckDB, you can enter any value (e.g. `ducks`) into the MotherDuck token field.
+
       > If you are using MotherDuck, make sure that the MotherDuck extension is installed under `C:\WINDOWS\system32\config\systemprofile\.duckdb\extensions\`. To do so, you can download the [DuckDB CLI client for Windows](https://duckdb.org/docs/installation/?version=stable&environment=cli&platform=win&download_method=direct&architecture=x86_64), and run `INSTALL motherduck`. Then, you can copy over the extension files via PowerShell:
       ```
       cp -R '~\.duckdb\extensions\v1.2.0\' "C:\WINDOWS\system32\config\systemprofile\.duckdb\extensions\"
       ```
+
+      > Optionally, you can override the `motherduck_token` field by setting a Username and Password using Basic Authentication. This is useful if you need to replace the token, but don't want to recreate the connection. You can set the Username to any value and the Password to the token value.
 
 Enable the "Skip test connection" check box.
 

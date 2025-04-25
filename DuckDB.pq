@@ -1,5 +1,5 @@
 // This file contains your Data Connector logic
-[Version = "0.1.6"]
+[Version = "0.1.7"]
 section DuckDB;
 
 // When set to true, additional trace information will be written out to the User log.
@@ -38,7 +38,14 @@ Config_EnableDirectQuery = true;
 DefaultCustomUserAgent = "powerbi/v0.0(DuckDB)";
 
 [DataSource.Kind="DuckDB", Publish="DuckDB.Publish"]
-shared DuckDB.Contents = (database as text, optional motherduck_token as text, optional read_only as logical, optional saas_mode as logical, optional attach_mode as text, optional options as record) =>
+shared DuckDB.Contents = (
+    database as text,
+    motherduck_token as text,
+    optional read_only as logical,
+    optional saas_mode as logical,
+    optional attach_mode as text,
+    optional options as record
+) =>
     let
         Config_DriverName = Config_DriverName,
         // Read-only
@@ -59,10 +66,12 @@ shared DuckDB.Contents = (database as text, optional motherduck_token as text, o
             Text.Combine({DefaultCustomUserAgent, options[custom_user_agent]}, " ")
         else
             DefaultCustomUserAgent,
+        Credential = Extension.CurrentCredential(),
+        token = try Credential[Password] otherwise motherduck_token,
         // The ODBC connection string
         ConnectionString = options & [
             Driver = Config_DriverName,
-            Database = GetFullPath(database, motherduck_token, saas_mode, attach_mode),
+            Database = GetFullPath(database, token, saas_mode, attach_mode),
             access_mode = AccessMode,
             custom_user_agent = CustomUserAgent
         ],
@@ -151,16 +160,20 @@ DuckDB = [
     TestConnection = (dataSourcePath) =>
         let
             params = Json.Document(dataSourcePath),
-            server = params[server],
-            startDate = params[startDate],
-            endDate = params[endDate]
-            // name of function parameter
+            database = params[database],
+            motherduck_token = params[motherduck_token],
+            // optional parameters are not stored in dataSourcePath so we will set default values here
+            read_only = true,
+            saas_mode = false,
+            attach_mode = "single",
+            options = try params[options] otherwise [custom_user_agent="On-premises Data Gateway Test Connection"]
         in
-            {"DuckDB.Data", startDate, endDate},
+            {"DuckDB.Contents", database, motherduck_token, read_only, saas_mode, attach_mode, options},
     // Set supported types of authentication
     Authentication = [
         Windows = [],
-        Anonymous = []
+        Anonymous = [],
+        UsernamePassword = []
     ],
     Label = Extension.LoadString("DataSourceLabel")
 ];
