@@ -2,10 +2,11 @@
 
 This is the Power Query Custom Connector for DuckDB. Use this to connect to a DuckDB database in memory, from a local file or on MotherDuck with Power BI and Excel.
 
-1. [Installing](#installing)
-2. [How to use with Power BI](#how-to-use-with-power-bi)
-3. [Turning on UTF-8 support in the Language & Region settings](#turning-on-utf-8-support-in-the-language--region-settings)
-4. [[Experimental] Power BI Service](#experimental-power-bi-service)
+- [DuckDB Power Query Connector by MotherDuck](#duckdb-power-query-connector-by-motherduck)
+  - [Installing](#installing)
+  - [How to use with Power BI](#how-to-use-with-power-bi)
+  - [Turning on UTF-8 support in the Language \& Region settings](#turning-on-utf-8-support-in-the-language--region-settings)
+  - [\[Experimental\] Power BI Service](#experimental-power-bi-service)
 
 ## Installing
 
@@ -45,6 +46,9 @@ Click "OK".
 
 
 ## Turning on UTF-8 support in the Language & Region settings
+
+> **Note**: With DuckDB >=1.3.2, you no longer need this workaround.
+
 
 UTF-8 is currently not supported in the DuckDB ODBC driver. As a workaround, you can turn on UTF-8 decoding in Windows. Note that this may change behavior for other applications, so please use with caution.
 
