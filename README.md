@@ -2,16 +2,15 @@
 
 This is the Power Query Custom Connector for DuckDB. Use this to connect to a DuckDB database in memory, from a local file or on MotherDuck with Power BI and Excel.
 
-- [DuckDB Power Query Connector by MotherDuck](#duckdb-power-query-connector-by-motherduck)
-  - [Installing](#installing)
-  - [How to use with Power BI](#how-to-use-with-power-bi)
-  - [Turning on UTF-8 support in the Language \& Region settings](#turning-on-utf-8-support-in-the-language--region-settings)
-  - [\[Experimental\] Power BI Service](#experimental-power-bi-service)
+1. [Installing](#installing)
+2. [How to use with Power BI](#how-to-use-with-power-bi)
+3. [Turning on UTF-8 support in the Language & Region settings](#turning-on-utf-8-support-in-the-language--region-settings)
+4. [[Experimental] Power BI Service](#experimental-power-bi-service)
 
 ## Installing
 
-1. Download the latest DuckDB ODBC driver from the [DuckDB Power Query Connector GitHub Releases](https://github.com/MotherDuck-Open-Source/duckdb-power-query-connector/releases) for Windows:
-      - [duckdb_odbc-windows-amd64.zip](https://github.com/MotherDuck-Open-Source/duckdb-power-query-connector/releases/latest/download/duckdb_odbc-windows-amd64.zip)
+1. Download the latest DuckDB ODBC driver from the [official DuckDB download page](https://duckdb.org/docs/installation/?version=stable&environment=odbc&platform=windows&download_method=direct) or [DuckDB GitHub Releases](https://github.com/duckdb/duckdb/releases) for Windows:
+      - [duckdb_odbc-windows-amd64.zip](https://github.com/duckdb/duckdb-odbc/releases/latest/download/duckdb_odbc-windows-amd64.zip)
 1. Extract the `.zip` archive into a permanent location, such as `C:\Program Files\duckdb_odbc`, and install the latest DuckDB driver by running `odbc_install.exe`.
 1. Check that the correct version was installed. To do this, open the Registry Editor by running `regedit` in the command prompt or `Run` dialog. Browse to the `HKEY_LOCAL_MACHINE\SOFTWARE\ODBC\ODBCINST.INI\DuckDB Driver` entry and check that the Driver field contains the version you installed. If not, delete the `DuckDB Driver` registry key and rerun the installer.
 
