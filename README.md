@@ -9,8 +9,8 @@ This is the Power Query Custom Connector for DuckDB. Use this to connect to a Du
 
 ## Installing
 
-1. Download the latest DuckDB ODBC driver from the [DuckDB Power Query Connector GitHub Releases](https://github.com/MotherDuck-Open-Source/duckdb-power-query-connector/releases) for Windows:
-      - [duckdb_odbc-windows-amd64.zip](https://github.com/MotherDuck-Open-Source/duckdb-power-query-connector/releases/latest/download/duckdb_odbc-windows-amd64.zip)
+1. Download the latest DuckDB ODBC driver from the [official DuckDB download page](https://duckdb.org/docs/installation/?version=stable&environment=odbc&platform=windows&download_method=direct) or [DuckDB GitHub Releases](https://github.com/duckdb/duckdb/releases) for Windows:
+      - [duckdb_odbc-windows-amd64.zip](https://github.com/duckdb/duckdb-odbc/releases/latest/download/duckdb_odbc-windows-amd64.zip)
 1. Extract the `.zip` archive into a permanent location, such as `C:\Program Files\duckdb_odbc`, and install the latest DuckDB driver by running `odbc_install.exe`.
 1. Check that the correct version was installed. To do this, open the Registry Editor by running `regedit` in the command prompt or `Run` dialog. Browse to the `HKEY_LOCAL_MACHINE\SOFTWARE\ODBC\ODBCINST.INI\DuckDB Driver` entry and check that the Driver field contains the version you installed. If not, delete the `DuckDB Driver` registry key and rerun the installer.
 
@@ -45,6 +45,9 @@ Click "OK".
 
 
 ## Turning on UTF-8 support in the Language & Region settings
+
+> **Note**: With DuckDB >=1.3.2, you no longer need this workaround.
+
 
 UTF-8 is currently not supported in the DuckDB ODBC driver. As a workaround, you can turn on UTF-8 decoding in Windows. Note that this may change behavior for other applications, so please use with caution.
 
