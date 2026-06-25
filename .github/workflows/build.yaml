@@ -1,0 +1,28 @@
+name: Build connector
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: microsoft/setup-msbuild@v2
+
+      # DuckDB.proj's BuildMez target zips the connector into bin\AnyCPU\Debug\DuckDB.mez.
+      - name: Build .mez
+        shell: pwsh
+        run: |
+          msbuild DuckDB.proj
+          Copy-Item bin\AnyCPU\Debug\DuckDB.mez duckdb-power-query-connector.mez
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: duckdb-power-query-connector
+          path: duckdb-power-query-connector.mez
+          if-no-files-found: error

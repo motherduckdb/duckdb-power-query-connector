@@ -88,6 +88,24 @@ Now, you should be able to load your UTF-8 encoded database with Power BI direct
 
 <img width="653" alt="image" src="https://github.com/motherduckdb/duckdb-power-query-connector/assets/4041805/bc83d199-317b-4142-a180-579a9b9d8a05">
 
+## Building and releasing
+
+CI builds the `.mez` on every PR and push to `main` (see `.github/workflows/build.yaml`).
+The build just runs `msbuild DuckDB.proj` on a `windows-2025` runner — the project's
+`BuildMez` target zips the connector sources into `duckdb-power-query-connector.mez`,
+uploaded as the `duckdb-power-query-connector` workflow artifact. To build locally on
+Windows: `msbuild DuckDB.proj` and grab `bin\AnyCPU\Debug\DuckDB.mez`.
+
+Releases are **not** cut automatically on a tag. Instead:
+
+1. Create the release manually in GitHub (new tag on a `main` commit that has a green
+   build, plus your release notes) and publish it.
+2. Publishing fires `.github/workflows/add_release_assets.yaml`, which downloads the
+   `.mez` built for that commit and attaches it to the release.
+
+The `releases/latest/download/duckdb-power-query-connector.mez` link above always
+resolves to the most recent release's attached artifact.
+
 ## [Experimental] Power BI Service
 
 To use the [Power BI Service](https://app.powerbi.com/) with DuckDB, you can use the [On-Premises Data Gateway](https://learn.microsoft.com/en-us/power-bi/connect-data/service-gateway-onprem) application. 
