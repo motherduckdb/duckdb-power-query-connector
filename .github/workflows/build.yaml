@@ -27,8 +27,8 @@ jobs:
           path: duckdb-power-query-connector.mez
           if-no-files-found: error
 
-  # Loads the built .mez and runs one real query through it (Power Query SDK ->
-  # connector -> DuckDB ODBC driver -> in-memory DuckDB) using the PQTest harness.
+  # Loads the built .mez and reads a seeded table through it (Power Query SDK ->
+  # connector -> DuckDB ODBC driver -> DuckDB file) using the PQTest harness.
   smoke-test:
     needs: build
     runs-on: windows-2025
@@ -58,6 +58,16 @@ jobs:
           Set-ItemProperty "$inst\DuckDB Driver" Setup  "$dir\duckdb_odbc_setup.dll"
           New-Item "$inst\ODBC Drivers" -Force | Out-Null
           Set-ItemProperty "$inst\ODBC Drivers" "DuckDB Driver" "Installed"
+
+      - name: Seed test database
+        shell: pwsh
+        run: |
+          # CLI version matches the ODBC driver (1.4.x) so the file format is readable.
+          $ProgressPreference = 'SilentlyContinue'
+          $cli = "duckdb_cli-windows-amd64.zip"
+          Invoke-WebRequest "https://github.com/duckdb/duckdb/releases/download/v1.4.4/$cli" -OutFile $cli
+          tar -xf $cli   # extracts duckdb.exe into the working dir
+          .\duckdb.exe test.db "CREATE TABLE smoke AS SELECT * FROM range(10) t(n);"
 
       - name: Install Power Query SDK test tool
         shell: pwsh
@@ -89,7 +99,14 @@ jobs:
           if (Test-Path $baseline) {
             & $env:PQTEST compare -e $mez -q $query -fomof
           } else {
+            # Generate the baseline. Disable native-error abort so we can inspect the result:
+            # compare prints JSON (incl. any SourceError) and only writes the .pqout if eval succeeded.
+            $PSNativeCommandUseErrorActionPreference = $false
             & $env:PQTEST compare -e $mez -q $query
+            $PSNativeCommandUseErrorActionPreference = $true
+            if (-not (Test-Path $baseline)) {
+              throw "compare did not generate $baseline — the query failed to evaluate (see the compare JSON above)."
+            }
             Write-Host "::group::Generated baseline — commit $baseline with exactly this content"
             Get-Content $baseline
             Write-Host "::endgroup::"
