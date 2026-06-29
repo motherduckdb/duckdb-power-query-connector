@@ -99,8 +99,8 @@ jobs:
 
           # Strict regression: compare the query result against the committed .pqout baseline.
           # -fomof fails if the baseline is missing instead of silently regenerating it.
-          # ponytail: on the very first run there's no baseline, so generate + print it and fail
-          # loudly. Commit the printed file once to lock the baseline; every run after is strict.
+          # On the very first run there's no baseline, so generate + print it and fail loudly.
+          # Commit the printed file once to lock the baseline; every run after is strict.
           if (Test-Path $baseline) {
             & $env:PQTEST compare -e $mez -q $query -fomof
           } else {
