@@ -26,3 +26,44 @@ jobs:
           name: duckdb-power-query-connector
           path: duckdb-power-query-connector.mez
           if-no-files-found: error
+
+  # Loads the built .mez and runs one real query through it (Power Query SDK ->
+  # connector -> DuckDB ODBC driver -> in-memory DuckDB) using the PQTest harness.
+  smoke-test:
+    needs: build
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/download-artifact@v7
+        with:
+          name: duckdb-power-query-connector
+
+      - name: Install DuckDB ODBC driver
+        shell: pwsh
+        run: |
+          $zip = "duckdb_odbc-windows-amd64.zip"
+          Invoke-WebRequest "https://github.com/duckdb/duckdb-odbc/releases/download/v1.4.4.0/$zip" -OutFile $zip
+          Expand-Archive $zip -DestinationPath duckdb_odbc
+          # Registers the "DuckDB Driver" that DuckDB.pq references. Runner is elevated, so no UAC prompt.
+          & .\duckdb_odbc\odbc_install.exe
+
+      - name: Install Power Query SDK test tool
+        shell: pwsh
+        run: |
+          nuget install Microsoft.PowerQuery.SdkTools -Version 2.155.2 -OutputDirectory nuget
+          $pqtest = (Get-ChildItem nuget -Recurse -Filter PQTest.exe | Select-Object -First 1).FullName
+          "PQTEST=$pqtest" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Smoke test the connector
+        shell: pwsh
+        run: |
+          $mez = "duckdb-power-query-connector.mez"
+          # Fast gate: does the .mez load and parse?
+          & $env:PQTEST info -e $mez
+          if ($LASTEXITCODE -ne 0) { throw "PQTest info failed: .mez did not load" }
+          # Run the query: set Anonymous credentials, then evaluate. compare generates the
+          # .pqout baseline on first run and only fails if evaluation itself errors.
+          & $env:PQTEST credential-template -e $mez -q test\smoke.query.pq -ak Anonymous | & $env:PQTEST set-credential
+          & $env:PQTEST compare -e $mez -q test\smoke.query.pq
+          if ($LASTEXITCODE -ne 0) { throw "PQTest compare failed: query did not evaluate" }

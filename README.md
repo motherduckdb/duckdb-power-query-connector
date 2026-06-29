@@ -96,6 +96,10 @@ The build just runs `msbuild DuckDB.proj` on a `windows-2025` runner — the pro
 uploaded as the `duckdb-power-query-connector` workflow artifact. To build locally on
 Windows: `msbuild DuckDB.proj` and grab `bin\AnyCPU\Debug\DuckDB.mez`.
 
+A `smoke-test` job then installs the DuckDB ODBC driver and the Power Query SDK
+`PQTest` harness on the runner and runs `test/smoke.query.pq` against the built `.mez`,
+so a PR fails if the connector can't actually open a connection and run a query.
+
 Releases are **not** cut automatically on a tag. Instead:
 
 1. Create the release manually in GitHub (new tag on a `main` commit that has a green
