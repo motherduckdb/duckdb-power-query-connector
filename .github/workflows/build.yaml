@@ -86,6 +86,11 @@ jobs:
           $query = "test\smoke.query.pq"
           $baseline = "test\smoke.query.pqout"
 
+          # PQTest runs the mashup engine from its own working dir, so point the query at the
+          # absolute path of the seeded db. The .pqout baseline is path-independent (it's the data).
+          $dbPath = Join-Path $env:GITHUB_WORKSPACE 'test.db'
+          (Get-Content $query -Raw).Replace('__DB_PATH__', $dbPath) | Set-Content $query
+
           # Fast gate: does the .mez load and parse?
           & $env:PQTEST info -e $mez
           # Anonymous has no placeholders, so pipe the template straight into set-credential
