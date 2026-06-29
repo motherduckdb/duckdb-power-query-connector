@@ -42,11 +42,22 @@ jobs:
       - name: Install DuckDB ODBC driver
         shell: pwsh
         run: |
+          # Register the "DuckDB Driver" that DuckDB.pq references straight into the registry.
+          # odbc_install.exe blocks on an interactive prompt on headless runners; these keys
+          # are all it would write anyway. $ProgressPreference speeds up Invoke-WebRequest.
+          $ProgressPreference = 'SilentlyContinue'
           $zip = "duckdb_odbc-windows-amd64.zip"
           Invoke-WebRequest "https://github.com/duckdb/duckdb-odbc/releases/download/v1.4.4.0/$zip" -OutFile $zip
-          Expand-Archive $zip -DestinationPath duckdb_odbc
-          # Registers the "DuckDB Driver" that DuckDB.pq references. Runner is elevated, so no UAC prompt.
-          & .\duckdb_odbc\odbc_install.exe
+          New-Item -ItemType Directory duckdb_odbc | Out-Null
+          tar -xf $zip -C duckdb_odbc
+          $dir = (Resolve-Path duckdb_odbc).Path
+
+          $inst = "HKLM:\SOFTWARE\ODBC\ODBCINST.INI"
+          New-Item "$inst\DuckDB Driver" -Force | Out-Null
+          Set-ItemProperty "$inst\DuckDB Driver" Driver "$dir\duckdb_odbc.dll"
+          Set-ItemProperty "$inst\DuckDB Driver" Setup  "$dir\duckdb_odbc_setup.dll"
+          New-Item "$inst\ODBC Drivers" -Force | Out-Null
+          Set-ItemProperty "$inst\ODBC Drivers" "DuckDB Driver" "Installed"
 
       - name: Install Power Query SDK test tool
         shell: pwsh
