@@ -69,12 +69,28 @@ jobs:
       - name: Smoke test the connector
         shell: pwsh
         run: |
+          # Make any non-zero PQTest exit fail the step (default in PS 7.4+, set explicitly).
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
           $mez = "duckdb-power-query-connector.mez"
+          $query = "test\smoke.query.pq"
+          $baseline = "test\smoke.query.pqout"
+
           # Fast gate: does the .mez load and parse?
           & $env:PQTEST info -e $mez
-          if ($LASTEXITCODE -ne 0) { throw "PQTest info failed: .mez did not load" }
-          # Run the query: set Anonymous credentials, then evaluate. compare generates the
-          # .pqout baseline on first run and only fails if evaluation itself errors.
-          & $env:PQTEST credential-template -e $mez -q test\smoke.query.pq -ak Anonymous | & $env:PQTEST set-credential
-          & $env:PQTEST compare -e $mez -q test\smoke.query.pq
-          if ($LASTEXITCODE -ne 0) { throw "PQTest compare failed: query did not evaluate" }
+          # Anonymous needs no secret, so set it directly; -e/-q identify the data source.
+          & $env:PQTEST set-credential -e $mez -q $query -ak Anonymous
+
+          # Strict regression: compare the query result against the committed .pqout baseline.
+          # -fomof fails if the baseline is missing instead of silently regenerating it.
+          # ponytail: on the very first run there's no baseline, so generate + print it and fail
+          # loudly. Commit the printed file once to lock the baseline; every run after is strict.
+          if (Test-Path $baseline) {
+            & $env:PQTEST compare -e $mez -q $query -fomof
+          } else {
+            & $env:PQTEST compare -e $mez -q $query
+            Write-Host "::group::Generated baseline — commit $baseline with exactly this content"
+            Get-Content $baseline
+            Write-Host "::endgroup::"
+            throw "No committed $baseline yet. Commit the content printed above; comparison is strict once it exists."
+          }
