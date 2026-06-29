@@ -9,7 +9,7 @@ This is the Power Query Custom Connector for DuckDB. Use this to connect to a Du
 
 ## Installing
 
-1. Download the latest [DuckDB ODBC driver for Windows (x86_64/AMD64)](https://github.com/duckdb/duckdb-odbc/releases/download/v1.4.4.0/duckdb_odbc-windows-amd64.zip).
+1. Download the latest [DuckDB ODBC driver for Windows (x86_64/AMD64)](https://github.com/duckdb/duckdb-odbc/releases/latest/download/duckdb_odbc-windows-amd64.zip).
    See [the releases page](https://github.com/duckdb/duckdb-odbc/releases) for other versions and architectures.
    For more information about the Windows ODBC Driver, see the [DuckDB Docs page on DuckDB ODBC API on Windows](https://duckdb.org/docs/stable/clients/odbc/windows).
 2. Extract the `.zip` archive. Run `odbc_install.exe` - if Windows displays a security warning, click "More information" then "Run Anyway".
