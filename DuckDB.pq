@@ -100,7 +100,13 @@ shared DuckDB.Contents = (
                     // The values below are required for the SQL Native Client ODBC driver, but might
                     // not be required for your data source.
                     SQL_SQL92_PREDICATES = ODBC[SQL_SP][All],
-                    SQL_AGGREGATE_FUNCTIONS = ODBC[SQL_AF][All]
+                    SQL_AGGREGATE_FUNCTIONS = ODBC[SQL_AF][All],
+                    // The DuckDB ODBC driver does not translate ODBC {fn ...} scalar-function
+                    // escapes, so advertise none. Otherwise the engine folds Text.Contains to
+                    // {fn LOCATE(...)}, which reaches DuckDB verbatim and fails to parse.
+                    // With no escapes advertised the engine folds to LIKE
+                    // or evaluates client-side.
+                    SQL_STRING_FUNCTIONS = 0
                 ]
         ),
         // SQLGetTypeInfo can be specified in two ways:
