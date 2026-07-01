@@ -6,7 +6,9 @@ section DuckDB;
 // This should be set to false before release. Tracing is done through a call to
 // Diagnostics.LogValue(). When EnableTraceOutput is set to false, the call becomes a
 // no-op and simply returns the original value.
-EnableTraceOutput = true;
+// Off by default: the traced connection string carries the MotherDuck token, which
+// must not reach the user log.
+EnableTraceOutput = false;
 
 // The name of the ODBC driver
 Config_DriverName = "DuckDB Driver";
@@ -40,7 +42,7 @@ DefaultCustomUserAgent = "powerbi/v0.0(DuckDB)";
 [DataSource.Kind="DuckDB", Publish="DuckDB.Publish"]
 shared DuckDB.Contents = (
     database as text,
-    motherduck_token as text,
+    optional motherduck_token as text,
     optional read_only as logical,
     optional saas_mode as logical,
     optional attach_mode as text,
@@ -67,7 +69,14 @@ shared DuckDB.Contents = (
         else
             DefaultCustomUserAgent,
         Credential = Extension.CurrentCredential(),
-        token = try Credential[Password] otherwise motherduck_token,
+        // A wrong/expired token can surface as a non-text credential; coercing it during
+        // connection-string building yields a cryptic "cannot convert Record to Text".
+        // Fail with a clear message instead.
+        token =
+            let raw = try Credential[Password] otherwise motherduck_token in
+                if raw = null then null
+                else if raw is text then raw
+                else error Error.Record("DataSource.Error", "MotherDuck token must be text. Check the configured token."),
         // The ODBC connection string
         ConnectionString = options & [
             Driver = Config_DriverName,
@@ -167,7 +176,8 @@ DuckDB = [
         let
             params = Json.Document(dataSourcePath),
             database = params[database],
-            motherduck_token = params[motherduck_token],
+            // Optional now: local DuckDB files need no token.
+            motherduck_token = try params[motherduck_token] otherwise null,
             // optional parameters are not stored in dataSourcePath so we will set default values here
             read_only = true,
             saas_mode = false,
@@ -205,10 +215,16 @@ GetFullPath = (database as text, optional motherduck_token as text, optional saa
         attach_mode = if (attach_mode = null or attach_mode = "")
             then "single"
             else attach_mode,
-        path = if IsMotherDuckDatabase(database) and saas_mode = true
-            then database & "?motherduck_token=" & motherduck_token & "&saas_mode=true&attach_mode=" & attach_mode
-            else if IsMotherDuckDatabase(database)
-            then database & "?motherduck_token=" & motherduck_token & "&attach_mode=" & attach_mode
+        // Pick the right separator: a database that already carries a query string
+        // (e.g. "md:db?x=1") must continue with "&", not a second "?".
+        sep = if Text.Contains(database, "?") then "&" else "?",
+        params = List.Combine({
+            {"motherduck_token=" & motherduck_token},
+            if saas_mode = true then {"saas_mode=true"} else {},
+            {"attach_mode=" & attach_mode}
+        }),
+        path = if IsMotherDuckDatabase(database)
+            then database & sep & Text.Combine(params, "&")
             else database
     in
         if IsMotherDuckDatabase(database) and (motherduck_token = null or motherduck_token = "")
