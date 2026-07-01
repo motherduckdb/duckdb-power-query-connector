@@ -83,37 +83,41 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $PSNativeCommandUseErrorActionPreference = $true
           $mez = "duckdb-power-query-connector.mez"
-          $query = "test\smoke.query.pq"
-          $baseline = "test\smoke.query.pqout"
 
-          # PQTest runs the mashup engine from its own working dir, so point the query at the
-          # absolute path of the seeded db. The .pqout baseline is path-independent (it's the data).
+          # PQTest runs the mashup engine from its own working dir, so queries reference
+          # __DB_PATH__ and we substitute the seeded db's absolute path. The .pqout
+          # baselines are path-independent (they're the data).
           $dbPath = Join-Path $env:GITHUB_WORKSPACE 'test.db'
-          (Get-Content $query -Raw).Replace('__DB_PATH__', $dbPath) | Set-Content $query
 
           # Fast gate: does the .mez load and parse?
           & $env:PQTEST info -e $mez
-          # Anonymous has no placeholders, so pipe the template straight into set-credential
-          # (JSON mode; -ak can't be passed here). -e/-q identify the data source on both calls.
-          & $env:PQTEST credential-template -e $mez -q $query -ak Anonymous | & $env:PQTEST set-credential -e $mez -q $query
 
-          # Strict regression: compare the query result against the committed .pqout baseline.
-          # -fomof fails if the baseline is missing instead of silently regenerating it.
-          # On the very first run there's no baseline, so generate + print it and fail loudly.
-          # Commit the printed file once to lock the baseline; every run after is strict.
-          if (Test-Path $baseline) {
-            & $env:PQTEST compare -e $mez -q $query -fomof
-          } else {
-            # Generate the baseline. Disable native-error abort so we can inspect the result:
-            # compare prints JSON (incl. any SourceError) and only writes the .pqout if eval succeeded.
-            $PSNativeCommandUseErrorActionPreference = $false
-            & $env:PQTEST compare -e $mez -q $query
-            $PSNativeCommandUseErrorActionPreference = $true
-            if (-not (Test-Path $baseline)) {
-              throw "compare did not generate $baseline — the query failed to evaluate (see the compare JSON above)."
+          # Every test/*.query.pq is compared against its committed test/*.query.pqout.
+          # Add a case = drop in a query + its baseline; no workflow change needed.
+          foreach ($queryFile in Get-ChildItem test\*.query.pq) {
+            $query = $queryFile.FullName
+            $baseline = [IO.Path]::ChangeExtension($query, '.pqout')
+            Write-Host "::group::$($queryFile.Name)"
+            (Get-Content $query -Raw).Replace('__DB_PATH__', $dbPath) | Set-Content $query
+
+            # Anonymous (local file, no token). Credentials are keyed to the data source
+            # path, which differs per query, so set them per query.
+            & $env:PQTEST credential-template -e $mez -q $query -ak Anonymous | & $env:PQTEST set-credential -e $mez -q $query
+
+            # Strict regression: -fomof fails if the baseline is missing instead of
+            # silently regenerating it. On the first run for a new query there's no
+            # baseline, so generate + print it and fail loudly so it gets committed.
+            if (Test-Path $baseline) {
+              & $env:PQTEST compare -e $mez -q $query -fomof
+            } else {
+              $PSNativeCommandUseErrorActionPreference = $false
+              & $env:PQTEST compare -e $mez -q $query
+              $PSNativeCommandUseErrorActionPreference = $true
+              if (-not (Test-Path $baseline)) {
+                throw "compare did not generate $baseline — $($queryFile.Name) failed to evaluate (see the compare JSON above)."
+              }
+              Get-Content $baseline
+              throw "No committed $baseline yet. Commit the content printed above; comparison is strict once it exists."
             }
-            Write-Host "::group::Generated baseline — commit $baseline with exactly this content"
-            Get-Content $baseline
             Write-Host "::endgroup::"
-            throw "No committed $baseline yet. Commit the content printed above; comparison is strict once it exists."
           }
