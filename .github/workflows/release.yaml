@@ -1,0 +1,49 @@
+name: Release
+
+# The only way to cut a release: pick a main commit with a green build, give it a version.
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: Commit on main to release
+        required: true
+      version:
+        description: Version without the leading v, e.g. 0.2.0 or 0.2.0-rc1 (a suffix marks a pre-release)
+        required: true
+
+permissions:
+  contents: write
+  actions: read
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  GH_REPO: ${{ github.repository }}
+  VERSION: ${{ inputs.version }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate inputs
+        run: |
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]] || { echo "::error::Invalid version '$VERSION'"; exit 1; }
+          if gh api "repos/$GH_REPO/git/ref/tags/v$VERSION" --silent 2>/dev/null; then
+            echo "::error::Tag v$VERSION already exists"; exit 1
+          fi
+          sha=$(gh api "repos/$GH_REPO/commits/${{ inputs.sha }}" -q .sha)
+          echo "SHA=$sha" >> "$GITHUB_ENV"
+
+      # A successful push build on main proves the commit is on main and its tests passed.
+      - name: Download .mez from the green build
+        run: |
+          run_id=$(gh run list --workflow build.yaml --branch main --event push --commit "$SHA" --status success \
+            --json databaseId -q '.[0].databaseId')
+          [ -n "$run_id" ] || { echo "::error::No successful main build for $SHA"; exit 1; }
+          gh run download "$run_id" -n duckdb-power-query-connector
+
+      # With assets, gh publishes only after they're uploaded and deletes the draft if uploading fails.
+      - name: Create release
+        run: |
+          prerelease=$([[ "$VERSION" == *-* ]] && echo --prerelease || true)
+          gh release create "v$VERSION" duckdb-power-query-connector.mez \
+            --target "$SHA" --title "v$VERSION" --generate-notes $prerelease
