@@ -10,6 +10,10 @@ on:
       version:
         description: Version without the leading v, e.g. 0.2.0 or 0.2.0-rc1 (a suffix marks a pre-release)
         required: true
+      dry_run:
+        description: Run all checks and fetch the .mez, but don't create the release
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -45,5 +49,5 @@ jobs:
       - name: Create release
         run: |
           prerelease=$([[ "$VERSION" == *-* ]] && echo --prerelease || true)
-          gh release create "v$VERSION" duckdb-power-query-connector.mez \
+          ${{ inputs.dry_run && 'echo [dry run]' || '' }} gh release create "v$VERSION" duckdb-power-query-connector.mez \
             --target "$SHA" --title "v$VERSION" --generate-notes $prerelease

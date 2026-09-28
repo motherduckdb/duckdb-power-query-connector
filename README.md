@@ -107,6 +107,7 @@ Don't create releases or tags from the GitHub UI. Run the **Release** workflow i
 
 - `sha`: a `main` commit whose `Build connector` run is green.
 - `version`: without the `v`; a suffix such as `0.2.0-rc1` marks a pre-release.
+- `dry_run`: run every check and fetch the `.mez`, then only print the release command.
 
 The workflow fails if the tag already exists or the commit has no green `main` build. Otherwise it
 downloads that build's `.mez`, creates tag `v<version>` on the commit and publishes the release with
