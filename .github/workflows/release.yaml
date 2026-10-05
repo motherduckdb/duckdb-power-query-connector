@@ -5,8 +5,8 @@ on:
   workflow_dispatch:
     inputs:
       sha:
-        description: Commit on main to release
-        required: true
+        description: Commit on main to release (defaults to the latest)
+        default: main
       version:
         description: Version without the leading v, e.g. 0.2.0 or 0.2.0-rc1 (a suffix marks a pre-release)
         required: true
