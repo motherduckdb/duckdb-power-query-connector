@@ -100,12 +100,19 @@ A `smoke-test` job then installs the DuckDB ODBC driver and the Power Query SDK
 `PQTest` harness on the runner and runs `test/smoke.query.pq` against the built `.mez`,
 so a PR fails if the connector can't actually open a connection and run a query.
 
-Releases are **not** cut automatically on a tag. Instead:
+### Releasing
 
-1. Create the release manually in GitHub (new tag on a `main` commit that has a green
-   build, plus your release notes) and publish it.
-2. Publishing fires `.github/workflows/add_release_assets.yaml`, which downloads the
-   `.mez` built for that commit and attaches it to the release.
+Don't create releases or tags from the GitHub UI. Run the **Release** workflow instead
+(Actions → Release → Run workflow, or `gh workflow run release.yaml -f sha=<commit> -f version=0.2.0`):
+
+- `sha`: a `main` commit whose `Build connector` run is green.
+- `version`: without the `v`; a suffix such as `0.2.0-rc1` marks a pre-release.
+- `dry_run`: run every check and fetch the `.mez`, then only print the release command.
+
+The workflow fails if the tag already exists or the commit has no green `main` build. Otherwise it
+downloads that build's `.mez`, creates tag `v<version>` on the commit and publishes the release with
+the `.mez` attached and auto-generated notes. `gh release create` publishes only after the `.mez` is
+uploaded, so no public release ever goes out without its asset.
 
 The `releases/latest/download/duckdb-power-query-connector.mez` link above always
 resolves to the most recent release's attached artifact.
